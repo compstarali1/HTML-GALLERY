@@ -42,9 +42,8 @@
 
             /* --- BACKGROUND IMAGE PLACEHOLDER --- */
             .bg-space {
-                /* Replace URL below with your own image */
                 background: linear-gradient(-45deg, rgba(5,5,5,0.9), rgba(15,15,35,0.85), rgba(25,15,35,0.85), rgba(5,16,32,0.9)), 
-                            url('https://images.unsplash.com/photo-1534796636985-c1c0e6f060e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+                            url('bg.jpg') center/cover no-repeat fixed;
                 background-size: 400% 400%, cover;
                 animation: spaceShift 18s ease infinite;
             }
@@ -105,7 +104,7 @@
         }
     </style>
 </head>
-<body class="bg-space text-white min-h-screen overflow-x-hidden perspective-3d pb-[80px] md:pb-[100px]">
+<body class="bg-space text-white min-h-screen overflow-x-hidden perspective-3d">
 
     <header class="sticky top-0 z-40 glass glass-accent border-b border-accent/20 px-4 xs:px-6 py-4 xs:py-5 mb-4 xs:mb-6 shadow-glow">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4 xs:gap-5">
@@ -150,100 +149,61 @@
         </div>
     </main>
 
-    <!-- MODAL - FIXED LAYOUT, NAV AT BOTTOM ALWAYS VISIBLE -->
-    <div id="htmlModal" class="fixed inset-0 z-[100] bg-dark/95 hidden flex-col overflow-hidden backdrop-blur-xl rounded-none xs:rounded-2xl m-0 xs:m-2 md:m-4 shadow-modal-border border-0 xs:border-2 border-accent/70">
+    <!-- FULLSCREEN MODAL - FRAMED, CONTENT FULLY VISIBLE -->
+    <div id="htmlModal" class="fixed inset-0 z-[999] bg-dark/98 hidden flex-col overflow-hidden m-2 md:m-4 rounded-2xl border-2 border-accent/70 shadow-modal-border">
         
-        <!-- TOP HEADER -->
-        <div class="h-[10%] glass glass-accent border-b border-accent/20 px-3 xs:px-6 flex justify-between items-center shadow-inner-glow shrink-0">
-            <div class="flex items-center gap-2 xs:gap-4 flex-1 min-w-0">
-                <span id="modalFileName" class="text-accent font-mono text-xs xs:text-sm md:text-base truncate block max-w-[180px] xs:max-w-[350px] md:max-w-[500px]"></span>
-                <span id="fileSize" class="text-[10px] xs:text-xs text-gray-400 bg-dark/40 px-1.5 py-0.5 xs:px-2 xs:py-1 rounded whitespace-nowrap"></span>
-            </div>
-            
-            <div class="flex items-center gap-1 xs:gap-2 md:gap-3 shrink-0">
-                <button id="refreshBtn" class="btn-icon glass hover:bg-accent/20 text-accent" title="Refresh View">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                </button>
-                <button id="sourceBtn" class="btn-icon glass hover:bg-accent/20 text-accent" title="View Source Code">
-                    <i class="fa-solid fa-file-code"></i>
-                </button>
-                <button id="newWinBtn" class="btn-icon glass hover:bg-accent/20 text-accent" title="Open in New Window">
-                    <i class="fa-solid fa-up-right-from-square"></i>
-                </button>
-                <button id="downloadCurrentBtn" class="btn-icon glass hover:bg-success/20 text-success" title="Download File">
-                    <i class="fa-solid fa-download"></i>
-                </button>
-                
-                <button id="closeModal" class="btn-close bg-gradient-to-br from-danger to-danger/80 hover:from-danger/90 hover:to-danger/70 text-white shadow-lg hover:shadow-glow hover:scale-105 active:scale-95" title="Close Viewer">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+        <!-- TOP RIGHT BUTTONS - ALWAYS VISIBLE -->
+        <div class="absolute top-4 right-4 z-[101] flex items-center gap-2 md:gap-3">
+            <button id="downloadCurrentBtn" class="btn-icon glass hover:bg-success/20 text-success shadow-lg" title="Download File">
+                <i class="fa-solid fa-download"></i>
+            </button>
+            <button id="closeModal" class="btn-close bg-gradient-to-br from-danger to-danger/80 hover:from-danger/90 hover:to-danger/70 text-white shadow-lg hover:scale-105 active:scale-95" title="Close Viewer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
-        <!-- MAIN CONTENT AREA -->
-        <div class="flex-1 w-full relative bg-dark/50 overflow-hidden border-b border-accent/10 min-h-0">
+        <!-- FILE INFO HEADER -->
+        <div class="absolute top-4 left-4 z-[101] glass glass-accent px-3 py-2 rounded-lg shadow-glow max-w-[calc(100vw-120px)]">
+            <span id="modalFileName" class="text-accent font-mono text-xs md:text-sm truncate block"></span>
+            <span id="fileSize" class="text-[10px] text-gray-300"></span>
+        </div>
+
+        <!-- MAIN IFRAME - FULL CONTENT VISIBLE -->
+        <div class="flex-1 w-full h-full relative pt-16 pb-[calc(80px+20px)]">
             <div id="modalLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-dark/80 z-20 hidden">
                 <i class="fa-solid fa-circle-notch text-accent text-4xl md:text-5xl spinner mb-3 md:mb-4"></i>
                 <p class="text-accent font-mono text-xs md:text-sm pulse">RENDERING DOCUMENT...</p>
             </div>
             
-            <iframe id="fullHtmlFrame" class="w-full h-full border-none rounded-none xs:rounded-t-lg shadow-inner-glow" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
-
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 glass rounded-full px-3 xs:px-5 py-2 xs:py-3 flex items-center gap-2 xs:gap-5 shadow-glow z-10 scale-[0.8] xs:scale-100">
-                <button onclick="adjustZoom(-0.5)" class="text-white/70 hover:text-accent text-base md:text-lg"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                <input type="range" id="zoomRange" min="1" max="10" step="0.5" value="1" class="w-24 xs:w-36 h-1.5 xs:h-2 rounded-lg appearance-none bg-dark/60 accent-accent">
-                <button onclick="adjustZoom(0.5)" class="text-white/70 hover:text-accent text-base md:text-lg"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                <span id="zoomLabel" class="text-accent font-mono text-[10px] xs:text-xs w-8 xs:w-10 text-center">1.0x</span>
-            </div>
+            <iframe id="fullHtmlFrame" class="w-full h-full border-none rounded-lg" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
         </div>
 
-        <!-- BOTTOM NAVIGATION - FIXED TO BOTTOM, ALWAYS VISIBLE -->
-        <div class="h-[12%] min-h-[70px] md:min-h-[90px] glass-accent flex items-center justify-between px-4 xs:px-6 md:px-12 shadow-inner-glow border-t border-accent/30 shrink-0">
-            <button id="prevFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
-                <i class="fa-solid fa-chevron-left"></i>
-                <span>Previous</span>
-            </button>
-            
-            <div class="flex flex-col items-center gap-1 xs:gap-2 max-w-[120px] xs:max-w-[200px] md:max-w-none">
-                <div class="h-1.5 xs:h-2 w-full bg-dark/60 rounded-full overflow-hidden shadow-inner">
-                    <div id="progressBar" class="h-full bg-gradient-to-r from-accent to-secondary w-0 transition-all duration-300"></div>
+        <!-- BOTTOM NAVIGATION - RAISED 20px UP, INSIDE MODAL BORDER -->
+        <div class="absolute bottom-5 left-4 right-4 z-[101] glass-accent border-t border-accent/30 py-4 px-6 md:py-5 md:px-8 shadow-glow rounded-xl">
+            <div class="flex items-center justify-between max-w-5xl mx-auto">
+                <button id="prevFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
+                    <i class="fa-solid fa-chevron-left"></i>
+                    <span class="hidden xs:inline">Previous</span>
+                </button>
+
+                <div class="flex flex-col items-center gap-1 px-2">
+                    <div class="h-1.8 w-32 md:w-48 bg-dark/60 rounded-full overflow-hidden shadow-inner">
+                        <div id="progressBar" class="h-full bg-gradient-to-r from-accent to-secondary w-0 transition-all duration-300"></div>
+                    </div>
+                    <span id="fileCounter" class="text-accent font-bold font-mono text-xs md:text-sm">0 / 0</span>
                 </div>
-                <span id="fileCounter" class="text-accent font-bold font-mono text-xs xs:text-sm">0 / 0</span>
+
+                <button id="nextFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
+                    <span class="hidden xs:inline">Next</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
             </div>
-
-            <button id="nextFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
-                <span>Next</span>
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- GLOBAL BOTTOM NAV - ALWAYS VISIBLE ON SCREEN -->
-    <div class="fixed bottom-0 left-0 right-0 z-40 glass-accent border-t border-accent/30 py-3 px-4 md:py-4 md:px-8 shadow-glow">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <button id="globalPrevBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
-                <i class="fa-solid fa-chevron-left"></i>
-                <span class="hidden xs:inline">Previous</span>
-            </button>
-
-            <div class="flex flex-col items-center gap-1">
-                <div class="h-1.5 w-32 md:w-48 bg-dark/60 rounded-full overflow-hidden shadow-inner">
-                    <div id="globalProgressBar" class="h-full bg-gradient-to-r from-accent to-secondary w-0 transition-all duration-300"></div>
-                </div>
-                <span id="globalFileCounter" class="text-accent font-bold font-mono text-xs md:text-sm">0 / 0</span>
-            </div>
-
-            <button id="globalNextBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
-                <span class="hidden xs:inline">Next</span>
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
         </div>
     </div>
 
     <script>
         let htmlFiles = [];
         let currentIndex = 0;
-        let currentZoom = 1;
 
         // Elements
         const galleryGrid = document.getElementById('galleryGrid');
@@ -256,40 +216,37 @@
         const modalFileName = document.getElementById('modalFileName');
         const fileSize = document.getElementById('fileSize');
         const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
-        const refreshBtn = document.getElementById('refreshBtn');
-        const sourceBtn = document.getElementById('sourceBtn');
-        const newWinBtn = document.getElementById('newWinBtn');
         const closeModal = document.getElementById('closeModal');
         const prevFileBtn = document.getElementById('prevFileBtn');
         const nextFileBtn = document.getElementById('nextFileBtn');
         const fileCounter = document.getElementById('fileCounter');
         const progressBar = document.getElementById('progressBar');
-        const zoomRange = document.getElementById('zoomRange');
-        const zoomLabel = document.getElementById('zoomLabel');
-        
-        // Global bottom nav elements
-        const globalPrevBtn = document.getElementById('globalPrevBtn');
-        const globalNextBtn = document.getElementById('globalNextBtn');
-        const globalProgressBar = document.getElementById('globalProgressBar');
-        const globalFileCounter = document.getElementById('globalFileCounter');
+
+        // --- LOAD DEFAULT FILE: gallexy.html ---
+        function loadDefaultFile() {
+            htmlFiles.push({
+                name: 'gallexy.html',
+                url: 'gallexy.html', // same folder
+                size: 'Default',
+                date: Date.now()
+            });
+            renderGallery();
+        }
 
         // --- FILE HANDLING ---
         function loadFiles(files) {
             if (!files.length) return;
-
-            const validFiles = Array.from(files).filter(file => 
-                /\.(html|htm)$/i.test(file.name)
-            );
-
-            htmlFiles = validFiles.map(file => ({
+            const validFiles = Array.from(files).filter(file => /\.(html|htm)$/i.test(file.name));
+            
+            const newFiles = validFiles.map(file => ({
                 name: file.name,
                 url: URL.createObjectURL(file),
                 size: (file.size / 1024).toFixed(1) + ' KB',
                 date: file.lastModified
-            })).sort((a, b) => b.date - a.date);
+            }));
 
+            htmlFiles = [...htmlFiles, ...newFiles].sort((a, b) => b.date - a.date);
             renderGallery();
-            updateGlobalNav();
         }
 
         // --- RENDER GALLERY ---
@@ -306,7 +263,7 @@
                 return;
             }
 
-            // Render all uploaded files
+            // Render all files including default gallexy.html
             htmlFiles.forEach((file, index) => {
                 const card = document.createElement('div');
                 card.className = 'glass rounded-2xl aspect-square overflow-hidden relative border border-accent/10 float-3d cursor-pointer shadow-neo hover:shadow-neo-hover';
@@ -331,7 +288,7 @@
                     </div>
                 `;
 
-                // Open modal on click
+                // Open framed fullscreen modal on click
                 card.onclick = () => {
                     currentIndex = index;
                     openModal();
@@ -341,18 +298,7 @@
             });
         }
 
-        // --- UPDATE GLOBAL BOTTOM NAVIGATION ---
-        function updateGlobalNav() {
-            if (htmlFiles.length === 0) {
-                globalProgressBar.style.width = '0%';
-                globalFileCounter.textContent = '0 / 0';
-                return;
-            }
-            globalFileCounter.textContent = `${currentIndex + 1} / ${htmlFiles.length}`;
-            globalProgressBar.style.width = `${((currentIndex + 1) / htmlFiles.length) * 100}%`;
-        }
-
-        // --- OPEN MODAL & LOAD DOCUMENT ---
+        // --- OPEN FRAMED FULLSCREEN MODAL ---
         function openModal() {
             const file = htmlFiles[currentIndex];
             
@@ -361,129 +307,75 @@
             fileSize.textContent = file.size;
             fileCounter.textContent = `${currentIndex + 1} / ${htmlFiles.length}`;
             progressBar.style.width = `${((currentIndex + 1) / htmlFiles.length) * 100}%`;
-            updateGlobalNav();
-
-            // Reset zoom level
-            currentZoom = 1;
-            zoomRange.value = 1;
-            updateZoom();
 
             // Show loader while loading
             modalLoader.classList.remove('hidden');
             
-            // Load file into iframe
+            // Load file into iframe - full content visible
             fullHtmlFrame.onload = () => modalLoader.classList.add('hidden');
             fullHtmlFrame.src = file.url;
 
-            // Show modal & lock background scroll
+            // Show framed modal & lock background scroll
             htmlModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
-
-        // --- ZOOM SYSTEM ---
-        function updateZoom() {
-            zoomLabel.textContent = `${currentZoom.toFixed(1)}x`;
-            fullHtmlFrame.style.transform = `scale(${currentZoom})`;
-            fullHtmlFrame.style.transformOrigin = 'top left';
-        }
-
-        function adjustZoom(change) {
-            currentZoom = Math.min(Math.max(currentZoom + change, 1), 10);
-            zoomRange.value = currentZoom;
-            updateZoom();
-        }
-
-        zoomRange.addEventListener('input', (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateZoom();
-        });
-
-        // --- DEVELOPER TOOLS ACTIONS ---
-        refreshBtn.onclick = () => {
-            modalLoader.classList.remove('hidden');
-            fullHtmlFrame.src = htmlFiles[currentIndex].url;
-        };
-
-        sourceBtn.onclick = async () => {
-            try {
-                const res = await fetch(htmlFiles[currentIndex].url);
-                const code = await res.text();
-                const newWin = window.open();
-                newWin.document.open();
-                newWin.document.write(`
-                    <html>
-                    <head>
-                        <title>Source: ${htmlFiles[currentIndex].name}</title>
-                        <style>
-                            body { background: #0a0a0f; color: #f8f8f2; padding:20px; font-family:monospace; font-size:14px; white-space:pre; margin:0; }
-                        </style>
-                    </head>
-                    <body>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
-                    </html>
-                `);
-                newWin.document.close();
-            } catch (err) {
-                alert('Could not load source code');
-            }
-        };
-
-        newWinBtn.onclick = () => window.open(htmlFiles[currentIndex].url, '_blank');
-
-        downloadCurrentBtn.onclick = () => {
-            const a = document.createElement('a');
-            a.href = htmlFiles[currentIndex].url;
-            a.download = htmlFiles[currentIndex].name;
-            a.click();
-        };
 
         // --- NAVIGATION FUNCTIONS ---
         function goToPrev() {
             if (htmlFiles.length === 0) return;
             currentIndex = (currentIndex - 1 + htmlFiles.length) % htmlFiles.length;
-            if (!htmlModal.classList.contains('hidden')) openModal();
-            updateGlobalNav();
+            openModal();
         }
 
         function goToNext() {
             if (htmlFiles.length === 0) return;
             currentIndex = (currentIndex + 1) % htmlFiles.length;
-            if (!htmlModal.classList.contains('hidden')) openModal();
-            updateGlobalNav();
+            openModal();
         }
 
         // Attach navigation events
         prevFileBtn.onclick = goToPrev;
         nextFileBtn.onclick = goToNext;
-        globalPrevBtn.onclick = goToPrev;
-        globalNextBtn.onclick = goToNext;
 
+        // --- DOWNLOAD CURRENT FILE ---
+        downloadCurrentBtn.onclick = () => {
+            const file = htmlFiles[currentIndex];
+            const a = document.createElement('a');
+            a.href = file.url;
+            a.download = file.name;
+            a.click();
+        };
+
+        // --- CLOSE MODAL ---
         closeModal.onclick = () => {
             htmlModal.classList.add('hidden');
             document.body.style.overflow = 'auto';
+            // Clear iframe to free memory
+            fullHtmlFrame.src = '';
         };
 
         // --- CLEAR ALL FILES ---
         clearAllBtn.onclick = () => {
-            // Free memory
-            htmlFiles.forEach(f => URL.revokeObjectURL(f.url));
-            htmlFiles = [];
+            // Free memory from uploaded files
+            htmlFiles.forEach(f => {
+                if (f.url.startsWith('blob:')) URL.revokeObjectURL(f.url);
+            });
+            // Keep default gallexy.html, remove only uploaded files
+            htmlFiles = htmlFiles.filter(f => f.name === 'gallexy.html');
             // Reset inputs
             htmlFilesInput.value = '';
             htmlDirInput.value = '';
             // Reset view
             renderGallery();
-            updateGlobalNav();
         };
 
         // --- FILE INPUT HANDLERS ---
         htmlFilesInput.onchange = e => loadFiles(e.target.files);
         htmlDirInput.onchange = e => loadFiles(e.target.files);
 
-        // --- INITIALIZE ---
-        renderGallery();
-        updateGlobalNav();
+        // --- INITIALIZE: Load default file first ---
+        loadDefaultFile();
     </script>
 
 </body>
 </html>
-
