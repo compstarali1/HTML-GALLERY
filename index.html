@@ -3,25 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HTML File Gallery | 3D Dark Theme</title>
+    <title>DevGallery | 3D HTML Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        dark: '#0B0C10',
-                        card: '#1F2833',
-                        accent: '#66FCF1',
-                        secondary: '#45A29E',
-                        light: '#C5C6C7',
-                        danger: '#FF5252'
+                        dark: '#050505',
+                        glass: 'rgba(20, 20, 30, 0.6)',
+                        accent: '#00F5FF',
+                        secondary: '#7928CA',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        code: '#F8F8F2'
                     },
                     boxShadow: {
-                        '3d': '0 10px 25px rgba(0,0,0,0.7), 0 0 15px rgba(102, 252, 241, 0.08)',
-                        '3d-hover': '0 15px 35px rgba(0,0,0,0.8), 0 0 25px rgba(102, 252, 241, 0.15)',
-                        'modal': '0 0 50px rgba(0,0,0,0.9)'
+                        'neo': '20px 20px 60px #000000, -20px -20px 60px #1a1a1a',
+                        'neo-hover': '25px 25px 70px #000000, -25px -25px 70px #1f1f1f, 0 0 30px rgba(0, 245, 255, 0.2)',
+                        'glow': '0 0 20px rgba(0, 245, 255, 0.4), 0 0 60px rgba(121, 40, 202, 0.2)',
+                        'inner-glow': 'inset 2px 2px 10px rgba(0, 245, 255, 0.15), inset -2px -2px 10px rgba(255, 255, 255, 0.05)',
+                        'modal-border': '0 0 0 3px rgba(0, 245, 255, 0.6), 0 0 30px rgba(0, 245, 255, 0.2)'
+                    },
+                    screens: {
+                        'xs': '480px',
                     }
                 }
             }
@@ -29,103 +36,206 @@
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .perspective { perspective: 1200px; }
+            .perspective-3d { perspective: 1500px; }
             .preserve-3d { transform-style: preserve-3d; }
-            .rotate-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-            .bg-gradient-dark {
-                background: linear-gradient(135deg, #0B0C10 0%, #1A1A2E 50%, #16213E 100%);
+            .backface-hidden { backface-visibility: hidden; }
+
+            /* --- BACKGROUND IMAGE PLACEHOLDER --- */
+            .bg-space {
+                /* Replace URL below with your own image */
+                background: linear-gradient(-45deg, rgba(5,5,5,0.9), rgba(15,15,35,0.85), rgba(25,15,35,0.85), rgba(5,16,32,0.9)), 
+                            url('https://images.unsplash.com/photo-1534796636985-c1c0e6f060e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+                background-size: 400% 400%, cover;
+                animation: spaceShift 18s ease infinite;
             }
-            .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
-            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            @keyframes spaceShift {
+                0% { background-position: 0% 50%, center; }
+                50% { background-position: 100% 50%, center; }
+                100% { background-position: 0% 50%, center; }
+            }
+
+            .float-3d {
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateZ(0) rotateX(0) rotateY(0);
+            }
+            .float-3d:hover {
+                transform: translateZ(30px) rotateX(8deg) rotateY(-8deg) scale(1.05);
+            }
+
+            .glass {
+                background: rgba(255, 255, 255, 0.03);
+                backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .glass-accent {
+                background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(121, 40, 202, 0.05));
+                border: 1px solid rgba(0, 245, 255, 0.15);
+            }
+
+            .scrollbar-sleek {
+                scrollbar-width: thin;
+                scrollbar-color: #00F5FF #151520;
+            }
+            .scrollbar-sleek::-webkit-scrollbar { width: 12px; }
+            .scrollbar-sleek::-webkit-scrollbar-track { background: #151520; border-radius: 10px; }
+            .scrollbar-sleek::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #00F5FF, #7928CA); border-radius: 10px; border: 2px solid #151520; }
+
             .iframe-thumb {
-                transform: scale(0.22);
+                transform: scale(0.2);
                 transform-origin: top left;
-                width: 450%;
-                height: 450%;
+                width: 500%;
+                height: 500%;
                 border: none;
                 pointer-events: none;
                 user-select: none;
             }
-            .spinner {
-                animation: spin 1.2s linear infinite;
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
+
+            .spinner { animation: spin 1.5s linear infinite; }
+            @keyframes spin { 100% { transform: rotate(360deg); } }
+
+            .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 0.5) infinite; }
+            @keyframes pulse { 50% { opacity: 0.5; } }
+
+            /* --- RESPONSIVE BUTTON SIZES --- */
+            .btn-base { @apply transition-all flex items-center justify-center gap-2 font-semibold; }
+            .btn-md { @apply btn-base px-3 py-2 xs:px-4 xs:py-2.5 md:px-5 md:py-3 text-sm md:text-base; }
+            .btn-lg { @apply btn-base px-4 py-3 xs:px-6 xs:py-3.5 md:px-8 md:py-4 text-base md:text-lg; }
+            .btn-icon { @apply btn-base w-9 h-9 xs:w-10 xs:h-10 md:w-12 md:h-12; }
+            .btn-close { @apply btn-base w-12 h-12 xs:w-14 xs:h-14 md:w-16 md:h-16 text-lg md:text-xl; }
         }
     </style>
 </head>
-<body class="bg-gradient-dark text-light min-h-screen overflow-x-hidden">
+<body class="bg-space text-white min-h-screen overflow-x-hidden perspective-3d pb-[80px] md:pb-[100px]">
 
-    <!-- Header -->
-    <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-accent/10 px-6 py-4 mb-8">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-accent tracking-wider drop-shadow-[0_0_10px_rgba(102,252,241,0.3)]">
-                <i class="fa-brands fa-html5 mr-3"></i>HTML GALLERY
-            </h1>
-            <div class="flex flex-wrap gap-3">
-                <label class="cursor-pointer">
-                    <div class="bg-card hover:bg-secondary/80 text-accent px-4 py-2.5 rounded-lg shadow-3d preserve-3d rotate-hover hover:-translate-y-1 hover:scale-[1.02] flex items-center gap-2 text-sm">
-                        <i class="fa-solid fa-file-code"></i>
-                        <span>Open Files</span>
+    <header class="sticky top-0 z-40 glass glass-accent border-b border-accent/20 px-4 xs:px-6 py-4 xs:py-5 mb-4 xs:mb-6 shadow-glow">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4 xs:gap-5">
+            <div class="flex items-center gap-3 xs:gap-4">
+                <div class="w-10 h-10 xs:w-12 xs:h-12 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg shadow-accent/20">
+                    <i class="fa-solid fa-code text-dark text-lg xs:text-xl font-bold"></i>
+                </div>
+                <div>
+                    <h1 class="text-[clamp(1.5rem,3vw,2.6rem)] font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-accent via-white to-secondary">DEV<span class="font-light">GALLERY</span></h1>
+                    <p class="text-[10px] xs:text-xs text-accent/70 font-mono tracking-widest">HTML • CSS • JS EXPLORER</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 xs:gap-3">
+                <label class="cursor-pointer group">
+                    <div class="btn-md glass hover:glass-accent shadow-neo hover:shadow-glow">
+                        <i class="fa-solid fa-file-import text-accent"></i>
+                        <span class="hidden xs:inline">Open Files</span>
                     </div>
                     <input type="file" id="htmlFilesInput" accept=".html,.htm" multiple class="hidden">
                 </label>
-                <label class="cursor-pointer">
-                    <div class="bg-card hover:bg-secondary/80 text-accent px-4 py-2.5 rounded-lg shadow-3d preserve-3d rotate-hover hover:-translate-y-1 hover:scale-[1.02] flex items-center gap-2 text-sm">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <span>Open Directory</span>
+
+                <label class="cursor-pointer group">
+                    <div class="btn-md glass hover:glass-accent shadow-neo hover:shadow-glow">
+                        <i class="fa-solid fa-folder-tree text-secondary"></i>
+                        <span class="hidden xs:inline">Open Folder</span>
                     </div>
                     <input type="file" id="htmlDirInput" accept=".html,.htm" multiple webkitdirectory directory class="hidden">
                 </label>
-                <button id="clearAllBtn" class="bg-danger/20 hover:bg-danger/40 text-danger px-4 py-2.5 rounded-lg shadow-3d preserve-3d rotate-hover hover:-translate-y-1 hover:scale-[1.02] flex items-center gap-2 text-sm border border-danger/30">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Clear All</span>
+
+                <button id="clearAllBtn" class="btn-md glass hover:bg-danger/20 shadow-neo hover:shadow-glow text-danger hover:text-white">
+                    <i class="fa-solid fa-trash-alt"></i>
+                    <span class="hidden xs:inline">Clear All</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Gallery: 3 Horizontal × 4 Vertical = 12 Slots -->
-    <main class="max-w-6xl mx-auto px-4 pb-20 perspective">
-        <div id="galleryGrid" class="grid grid-cols-3 gap-6 md:gap-8">
-            <!-- Thumbnails Load Here -->
+    <main class="max-w-7xl mx-auto px-4">
+        <div id="galleryContainer" class="h-[70vh] xs:h-[75vh] overflow-y-auto scrollbar-sleek pr-2 xs:pr-4 preserve-3d">
+            <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 xs:gap-6 md:gap-8"></div>
         </div>
     </main>
 
-    <!-- Fullscreen Modal -->
-    <div id="htmlModal" class="fixed inset-0 z-50 bg-dark/98 hidden flex-col overflow-hidden">
-        <!-- Modal Header -->
-        <div class="h-[8%] bg-card/90 border-b border-accent/20 px-6 flex justify-between items-center">
-            <span id="modalFileName" class="text-accent font-mono text-sm truncate max-w-[70%]"></span>
-            <div class="flex gap-3">
-                <button id="downloadCurrentBtn" class="text-accent hover:text-white transition-colors text-xl" title="Download this file">
+    <!-- MODAL - FIXED LAYOUT, NAV AT BOTTOM ALWAYS VISIBLE -->
+    <div id="htmlModal" class="fixed inset-0 z-[100] bg-dark/95 hidden flex-col overflow-hidden backdrop-blur-xl rounded-none xs:rounded-2xl m-0 xs:m-2 md:m-4 shadow-modal-border border-0 xs:border-2 border-accent/70">
+        
+        <!-- TOP HEADER -->
+        <div class="h-[10%] glass glass-accent border-b border-accent/20 px-3 xs:px-6 flex justify-between items-center shadow-inner-glow shrink-0">
+            <div class="flex items-center gap-2 xs:gap-4 flex-1 min-w-0">
+                <span id="modalFileName" class="text-accent font-mono text-xs xs:text-sm md:text-base truncate block max-w-[180px] xs:max-w-[350px] md:max-w-[500px]"></span>
+                <span id="fileSize" class="text-[10px] xs:text-xs text-gray-400 bg-dark/40 px-1.5 py-0.5 xs:px-2 xs:py-1 rounded whitespace-nowrap"></span>
+            </div>
+            
+            <div class="flex items-center gap-1 xs:gap-2 md:gap-3 shrink-0">
+                <button id="refreshBtn" class="btn-icon glass hover:bg-accent/20 text-accent" title="Refresh View">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <button id="sourceBtn" class="btn-icon glass hover:bg-accent/20 text-accent" title="View Source Code">
+                    <i class="fa-solid fa-file-code"></i>
+                </button>
+                <button id="newWinBtn" class="btn-icon glass hover:bg-accent/20 text-accent" title="Open in New Window">
+                    <i class="fa-solid fa-up-right-from-square"></i>
+                </button>
+                <button id="downloadCurrentBtn" class="btn-icon glass hover:bg-success/20 text-success" title="Download File">
                     <i class="fa-solid fa-download"></i>
                 </button>
-                <button id="closeModal" class="text-accent hover:text-white transition-colors text-xl" title="Close">
-                    <i class="fa-solid fa-times-circle"></i>
+                
+                <button id="closeModal" class="btn-close bg-gradient-to-br from-danger to-danger/80 hover:from-danger/90 hover:to-danger/70 text-white shadow-lg hover:shadow-glow hover:scale-105 active:scale-95" title="Close Viewer">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
 
-        <!-- HTML Display Area (85% of screen) -->
-        <div class="h-[85%] w-full relative bg-white/5 overflow-hidden">
-            <!-- Loading Spinner -->
-            <div id="modalLoader" class="absolute inset-0 flex items-center justify-center bg-dark/70 z-10 hidden">
-                <i class="fa-solid fa-circle-notch text-accent text-4xl spinner"></i>
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-1 w-full relative bg-dark/50 overflow-hidden border-b border-accent/10 min-h-0">
+            <div id="modalLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-dark/80 z-20 hidden">
+                <i class="fa-solid fa-circle-notch text-accent text-4xl md:text-5xl spinner mb-3 md:mb-4"></i>
+                <p class="text-accent font-mono text-xs md:text-sm pulse">RENDERING DOCUMENT...</p>
             </div>
-            <iframe id="fullHtmlFrame" class="w-full h-full border-none" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+            
+            <iframe id="fullHtmlFrame" class="w-full h-full border-none rounded-none xs:rounded-t-lg shadow-inner-glow" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
+
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 glass rounded-full px-3 xs:px-5 py-2 xs:py-3 flex items-center gap-2 xs:gap-5 shadow-glow z-10 scale-[0.8] xs:scale-100">
+                <button onclick="adjustZoom(-0.5)" class="text-white/70 hover:text-accent text-base md:text-lg"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                <input type="range" id="zoomRange" min="1" max="10" step="0.5" value="1" class="w-24 xs:w-36 h-1.5 xs:h-2 rounded-lg appearance-none bg-dark/60 accent-accent">
+                <button onclick="adjustZoom(0.5)" class="text-white/70 hover:text-accent text-base md:text-lg"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                <span id="zoomLabel" class="text-accent font-mono text-[10px] xs:text-xs w-8 xs:w-10 text-center">1.0x</span>
+            </div>
         </div>
 
-        <!-- Navigation Arrows -->
-        <div class="h-[7%] bg-card/90 border-t border-accent/20 flex items-center justify-center gap-12">
-            <button id="prevFileBtn" class="bg-dark/60 hover:bg-accent/20 text-accent w-12 h-12 rounded-full shadow-3d rotate-hover hover:scale-110 flex items-center justify-center" title="Previous">
-                <i class="fa-solid fa-chevron-left text-lg"></i>
+        <!-- BOTTOM NAVIGATION - FIXED TO BOTTOM, ALWAYS VISIBLE -->
+        <div class="h-[12%] min-h-[70px] md:min-h-[90px] glass-accent flex items-center justify-between px-4 xs:px-6 md:px-12 shadow-inner-glow border-t border-accent/30 shrink-0">
+            <button id="prevFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
+                <i class="fa-solid fa-chevron-left"></i>
+                <span>Previous</span>
             </button>
-            <span id="fileCounter" class="text-accent font-bold text-sm">0 / 0</span>
-            <button id="nextFileBtn" class="bg-dark/60 hover:bg-accent/20 text-accent w-12 h-12 rounded-full shadow-3d rotate-hover hover:scale-110 flex items-center justify-center" title="Next">
-                <i class="fa-solid fa-chevron-right text-lg"></i>
+            
+            <div class="flex flex-col items-center gap-1 xs:gap-2 max-w-[120px] xs:max-w-[200px] md:max-w-none">
+                <div class="h-1.5 xs:h-2 w-full bg-dark/60 rounded-full overflow-hidden shadow-inner">
+                    <div id="progressBar" class="h-full bg-gradient-to-r from-accent to-secondary w-0 transition-all duration-300"></div>
+                </div>
+                <span id="fileCounter" class="text-accent font-bold font-mono text-xs xs:text-sm">0 / 0</span>
+            </div>
+
+            <button id="nextFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
+                <span>Next</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- GLOBAL BOTTOM NAV - ALWAYS VISIBLE ON SCREEN -->
+    <div class="fixed bottom-0 left-0 right-0 z-40 glass-accent border-t border-accent/30 py-3 px-4 md:py-4 md:px-8 shadow-glow">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <button id="globalPrevBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
+                <i class="fa-solid fa-chevron-left"></i>
+                <span class="hidden xs:inline">Previous</span>
+            </button>
+
+            <div class="flex flex-col items-center gap-1">
+                <div class="h-1.5 w-32 md:w-48 bg-dark/60 rounded-full overflow-hidden shadow-inner">
+                    <div id="globalProgressBar" class="h-full bg-gradient-to-r from-accent to-secondary w-0 transition-all duration-300"></div>
+                </div>
+                <span id="globalFileCounter" class="text-accent font-bold font-mono text-xs md:text-sm">0 / 0</span>
+            </div>
+
+            <button id="globalNextBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
+                <span class="hidden xs:inline">Next</span>
+                <i class="fa-solid fa-chevron-right"></i>
             </button>
         </div>
     </div>
@@ -133,6 +243,7 @@
     <script>
         let htmlFiles = [];
         let currentIndex = 0;
+        let currentZoom = 1;
 
         // Elements
         const galleryGrid = document.getElementById('galleryGrid');
@@ -143,134 +254,236 @@
         const fullHtmlFrame = document.getElementById('fullHtmlFrame');
         const modalLoader = document.getElementById('modalLoader');
         const modalFileName = document.getElementById('modalFileName');
+        const fileSize = document.getElementById('fileSize');
         const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const sourceBtn = document.getElementById('sourceBtn');
+        const newWinBtn = document.getElementById('newWinBtn');
         const closeModal = document.getElementById('closeModal');
         const prevFileBtn = document.getElementById('prevFileBtn');
         const nextFileBtn = document.getElementById('nextFileBtn');
         const fileCounter = document.getElementById('fileCounter');
+        const progressBar = document.getElementById('progressBar');
+        const zoomRange = document.getElementById('zoomRange');
+        const zoomLabel = document.getElementById('zoomLabel');
+        
+        // Global bottom nav elements
+        const globalPrevBtn = document.getElementById('globalPrevBtn');
+        const globalNextBtn = document.getElementById('globalNextBtn');
+        const globalProgressBar = document.getElementById('globalProgressBar');
+        const globalFileCounter = document.getElementById('globalFileCounter');
 
-        // Load files from selection
+        // --- FILE HANDLING ---
         function loadFiles(files) {
             if (!files.length) return;
 
-            // Filter only HTML files
             const validFiles = Array.from(files).filter(file => 
-                file.name.toLowerCase().endsWith('.html') || file.name.toLowerCase().endsWith('.htm')
+                /\.(html|htm)$/i.test(file.name)
             );
 
-            // Create file objects with URL and date
             htmlFiles = validFiles.map(file => ({
                 name: file.name,
                 url: URL.createObjectURL(file),
-                file: file,
+                size: (file.size / 1024).toFixed(1) + ' KB',
                 date: file.lastModified
-            }));
-
-            // Sort: newest first
-            htmlFiles.sort((a, b) => b.date - a.date);
+            })).sort((a, b) => b.date - a.date);
 
             renderGallery();
+            updateGlobalNav();
         }
 
-        // Render 3×4 grid
+        // --- RENDER GALLERY ---
         function renderGallery() {
             galleryGrid.innerHTML = '';
-            const totalSlots = 12;
 
-            for (let i = 0; i < totalSlots; i++) {
-                const card = document.createElement('div');
-                
-                if (htmlFiles[i]) {
-                    // Real-time HTML preview thumbnail with loader
-                    card.className = 'bg-card rounded-lg shadow-3d hover:shadow-3d-hover preserve-3d rotate-hover hover:rotate-x-2 hover:-translate-y-2 aspect-square overflow-hidden cursor-pointer relative border border-accent/5';
-                    
-                    card.innerHTML = `
-                        <!-- Thumbnail Loader -->
-                        <div class="absolute inset-0 flex items-center justify-center bg-dark/80 z-5 thumbnail-loader">
-                            <i class="fa-solid fa-circle-notch text-accent text-2xl spinner"></i>
-                        </div>
-                        <div class="w-full h-full overflow-hidden bg-white/5">
-                            <iframe src="${htmlFiles[i].url}" class="iframe-thumb" sandbox="allow-same-origin allow-scripts" onload="this.parentElement.previousElementSibling.remove()"></iframe>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 bg-dark/80 backdrop-blur-sm p-2 border-t border-accent/10">
-                            <p class="text-accent text-xs font-mono truncate">${htmlFiles[i].name}</p>
-                        </div>
-                    `;
-
-                    card.onclick = () => {
-                        currentIndex = i;
-                        openModal();
-                    };
-                } else {
-                    // Empty slot
-                    card.className = 'bg-card/30 rounded-lg border-2 border-dashed border-accent/10 aspect-square flex items-center justify-center';
-                    card.innerHTML = '<i class="fa-solid fa-file-code text-accent/20 text-4xl"></i>';
+            if (htmlFiles.length === 0) {
+                for (let i = 0; i < 12; i++) {
+                    const empty = document.createElement('div');
+                    empty.className = 'glass rounded-2xl aspect-square flex items-center justify-center border border-accent/5 float-3d';
+                    empty.innerHTML = '<i class="fa-solid fa-file-code text-accent/20 text-4xl md:text-5xl"></i>';
+                    galleryGrid.appendChild(empty);
                 }
+                return;
+            }
+
+            // Render all uploaded files
+            htmlFiles.forEach((file, index) => {
+                const card = document.createElement('div');
+                card.className = 'glass rounded-2xl aspect-square overflow-hidden relative border border-accent/10 float-3d cursor-pointer shadow-neo hover:shadow-neo-hover';
+
+                card.innerHTML = `
+                    <!-- Loading Spinner -->
+                    <div class="absolute inset-0 flex items-center justify-center bg-dark/80 z-10 thumbnail-loader">
+                        <i class="fa-solid fa-circle-notch text-accent text-2xl md:text-3xl spinner"></i>
+                    </div>
+                    
+                    <!-- Live HTML Preview -->
+                    <div class="w-full h-full overflow-hidden">
+                        <iframe src="${file.url}" class="iframe-thumb" sandbox="allow-same-origin allow-scripts" 
+                            onload="this.parentElement.previousElementSibling.remove()">
+                        </iframe>
+                    </div>
+
+                    <!-- File Info Bar -->
+                    <div class="absolute bottom-0 left-0 right-0 glass glass-accent backdrop-blur-md p-2 md:p-3 border-t border-accent/10">
+                        <p class="text-accent text-[10px] md:text-xs font-mono font-semibold truncate">${file.name}</p>
+                        <p class="text-white/50 text-[8px] md:text-[10px] mt-0.5 md:mt-1">${file.size}</p>
+                    </div>
+                `;
+
+                // Open modal on click
+                card.onclick = () => {
+                    currentIndex = index;
+                    openModal();
+                };
 
                 galleryGrid.appendChild(card);
-            }
+            });
         }
 
-        // Open modal with selected HTML
+        // --- UPDATE GLOBAL BOTTOM NAVIGATION ---
+        function updateGlobalNav() {
+            if (htmlFiles.length === 0) {
+                globalProgressBar.style.width = '0%';
+                globalFileCounter.textContent = '0 / 0';
+                return;
+            }
+            globalFileCounter.textContent = `${currentIndex + 1} / ${htmlFiles.length}`;
+            globalProgressBar.style.width = `${((currentIndex + 1) / htmlFiles.length) * 100}%`;
+        }
+
+        // --- OPEN MODAL & LOAD DOCUMENT ---
         function openModal() {
             const file = htmlFiles[currentIndex];
+            
+            // Update header info
+            modalFileName.textContent = file.name;
+            fileSize.textContent = file.size;
+            fileCounter.textContent = `${currentIndex + 1} / ${htmlFiles.length}`;
+            progressBar.style.width = `${((currentIndex + 1) / htmlFiles.length) * 100}%`;
+            updateGlobalNav();
+
+            // Reset zoom level
+            currentZoom = 1;
+            zoomRange.value = 1;
+            updateZoom();
+
             // Show loader while loading
             modalLoader.classList.remove('hidden');
+            
+            // Load file into iframe
             fullHtmlFrame.onload = () => modalLoader.classList.add('hidden');
             fullHtmlFrame.src = file.url;
-            modalFileName.textContent = file.name;
-            fileCounter.textContent = `${currentIndex + 1} / ${htmlFiles.length}`;
+
+            // Show modal & lock background scroll
             htmlModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
-        // Download current file
+        // --- ZOOM SYSTEM ---
+        function updateZoom() {
+            zoomLabel.textContent = `${currentZoom.toFixed(1)}x`;
+            fullHtmlFrame.style.transform = `scale(${currentZoom})`;
+            fullHtmlFrame.style.transformOrigin = 'top left';
+        }
+
+        function adjustZoom(change) {
+            currentZoom = Math.min(Math.max(currentZoom + change, 1), 10);
+            zoomRange.value = currentZoom;
+            updateZoom();
+        }
+
+        zoomRange.addEventListener('input', (e) => {
+            currentZoom = parseFloat(e.target.value);
+            updateZoom();
+        });
+
+        // --- DEVELOPER TOOLS ACTIONS ---
+        refreshBtn.onclick = () => {
+            modalLoader.classList.remove('hidden');
+            fullHtmlFrame.src = htmlFiles[currentIndex].url;
+        };
+
+        sourceBtn.onclick = async () => {
+            try {
+                const res = await fetch(htmlFiles[currentIndex].url);
+                const code = await res.text();
+                const newWin = window.open();
+                newWin.document.open();
+                newWin.document.write(`
+                    <html>
+                    <head>
+                        <title>Source: ${htmlFiles[currentIndex].name}</title>
+                        <style>
+                            body { background: #0a0a0f; color: #f8f8f2; padding:20px; font-family:monospace; font-size:14px; white-space:pre; margin:0; }
+                        </style>
+                    </head>
+                    <body>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
+                    </html>
+                `);
+                newWin.document.close();
+            } catch (err) {
+                alert('Could not load source code');
+            }
+        };
+
+        newWinBtn.onclick = () => window.open(htmlFiles[currentIndex].url, '_blank');
+
         downloadCurrentBtn.onclick = () => {
-            const file = htmlFiles[currentIndex];
             const a = document.createElement('a');
-            a.href = file.url;
-            a.download = file.name;
-            document.body.appendChild(a);
+            a.href = htmlFiles[currentIndex].url;
+            a.download = htmlFiles[currentIndex].name;
             a.click();
-            document.body.removeChild(a);
         };
 
-        // Clear All Files
-        clearAllBtn.onclick = () => {
-            // Revoke all object URLs to free memory
-            htmlFiles.forEach(file => URL.revokeObjectURL(file.url));
-            htmlFiles = [];
-            currentIndex = 0;
-            // Reset inputs
-            htmlFilesInput.value = '';
-            htmlDirInput.value = '';
-            // Re-render empty grid
-            renderGallery();
-        };
-
-        // Navigation
-        prevFileBtn.onclick = () => {
+        // --- NAVIGATION FUNCTIONS ---
+        function goToPrev() {
+            if (htmlFiles.length === 0) return;
             currentIndex = (currentIndex - 1 + htmlFiles.length) % htmlFiles.length;
-            openModal();
-        };
+            if (!htmlModal.classList.contains('hidden')) openModal();
+            updateGlobalNav();
+        }
 
-        nextFileBtn.onclick = () => {
+        function goToNext() {
+            if (htmlFiles.length === 0) return;
             currentIndex = (currentIndex + 1) % htmlFiles.length;
-            openModal();
-        };
+            if (!htmlModal.classList.contains('hidden')) openModal();
+            updateGlobalNav();
+        }
 
-        // Close modal
+        // Attach navigation events
+        prevFileBtn.onclick = goToPrev;
+        nextFileBtn.onclick = goToNext;
+        globalPrevBtn.onclick = goToPrev;
+        globalNextBtn.onclick = goToNext;
+
         closeModal.onclick = () => {
             htmlModal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         };
 
-        // Input handlers
+        // --- CLEAR ALL FILES ---
+        clearAllBtn.onclick = () => {
+            // Free memory
+            htmlFiles.forEach(f => URL.revokeObjectURL(f.url));
+            htmlFiles = [];
+            // Reset inputs
+            htmlFilesInput.value = '';
+            htmlDirInput.value = '';
+            // Reset view
+            renderGallery();
+            updateGlobalNav();
+        };
+
+        // --- FILE INPUT HANDLERS ---
         htmlFilesInput.onchange = e => loadFiles(e.target.files);
         htmlDirInput.onchange = e => loadFiles(e.target.files);
 
-        // Initialize empty grid
+        // --- INITIALIZE ---
         renderGallery();
+        updateGlobalNav();
     </script>
+
 </body>
 </html>
+
