@@ -1,399 +1,236 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DevGallery | 3D HTML Explorer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: '#050505',
-                        glass: 'rgba(20, 20, 30, 0.6)',
-                        accent: '#00F5FF',
-                        secondary: '#7928CA',
-                        success: '#10B981',
-                        warning: '#F59E0B',
-                        danger: '#EF4444',
-                        code: '#F8F8F2'
-                    },
-                    boxShadow: {
-                        'neo': '20px 20px 60px #000000, -20px -20px 60px #1a1a1a',
-                        'neo-hover': '25px 25px 70px #000000, -25px -25px 70px #1f1f1f, 0 0 30px rgba(0, 245, 255, 0.2)',
-                        'glow': '0 0 20px rgba(0, 245, 255, 0.4), 0 0 60px rgba(121, 40, 202, 0.2)',
-                        'inner-glow': 'inset 2px 2px 10px rgba(0, 245, 255, 0.15), inset -2px -2px 10px rgba(255, 255, 255, 0.05)',
-                        'modal-border': '0 0 0 3px rgba(0, 245, 255, 0.6), 0 0 30px rgba(0, 245, 255, 0.2)'
-                    },
-                    screens: {
-                        'xs': '480px',
-                    }
-                }
-            }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPC Job Planner</title>
+    <style>
+        :root {
+            --bg: #f5f5f5; --card: #ffffff; --text: #222; --muted: #666;
+            --border: #ccc; --row-alt: #f9f9f9; --btn-blue: #005ea2; --btn-blue-h: #004b82;
+            --btn-green: #2e7d32; --btn-green-h: #256628; --btn-purple: #7b1fa2; --btn-purple-h: #6a1b9a;
+            --btn-orange: #e67e22; --btn-orange-h: #d35400; --btn-red: #d32f2f; --btn-red-h: #b71c1c; --shadow: rgba(0,0,0,0.15);
+            --btn-route: #00796b; --btn-route-h: #00695c;
+            --shade1: #e8f4ff; --shade2: #fff3e8; --shade3: #f0f8e8; --shade4: #f8e8f4;
+            --shade5: #f4f8e8; --shade6: #e8f8f8;
+            --link-colour: #0066cc; --link-hover: #004499;
+            --max-width: 1100px; --base-font: 16px; --loc-font: 13px;
+            --btn-padding: 16px 22px; --section-padding: 24px; --top-btn-w: 140px;
+            --reminder-bg: #fff3cd; --reminder-text: #856404;
+            --progress-bg: #ddd; --progress-fill: #2e7d32;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .perspective-3d { perspective: 1500px; }
-            .preserve-3d { transform-style: preserve-3d; }
-            .backface-hidden { backface-visibility: hidden; }
-
-            /* --- BACKGROUND IMAGE PLACEHOLDER --- */
-            .bg-space {
-                background: linear-gradient(-45deg, rgba(5,5,5,0.9), rgba(15,15,35,0.85), rgba(25,15,35,0.85), rgba(5,16,32,0.9)), 
-                            url('https://images.unsplash.com/photo-1534796636985-c1c0e6f060e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
-                background-size: 400% 400%, cover;
-                animation: spaceShift 18s ease infinite;
-            }
-            @keyframes spaceShift {
-                0% { background-position: 0% 50%, center; }
-                50% { background-position: 100% 50%, center; }
-                100% { background-position: 0% 50%, center; }
-            }
-
-            .float-3d {
-                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-                transform: translateZ(0) rotateX(0) rotateY(0);
-            }
-            .float-3d:hover {
-                transform: translateZ(30px) rotateX(8deg) rotateY(-8deg) scale(1.05);
-            }
-
-            .glass {
-                background: rgba(255, 255, 255, 0.03);
-                backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-            }
-            .glass-accent {
-                background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(121, 40, 202, 0.05));
-                border: 1px solid rgba(0, 245, 255, 0.15);
-            }
-
-            .scrollbar-sleek {
-                scrollbar-width: thin;
-                scrollbar-color: #00F5FF #151520;
-            }
-            .scrollbar-sleek::-webkit-scrollbar { width: 12px; }
-            .scrollbar-sleek::-webkit-scrollbar-track { background: #151520; border-radius: 10px; }
-            .scrollbar-sleek::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #00F5FF, #7928CA); border-radius: 10px; border: 2px solid #151520; }
-
-            .iframe-thumb {
-                transform: scale(0.2);
-                transform-origin: top left;
-                width: 500%;
-                height: 500%;
-                border: none;
-                pointer-events: none;
-                user-select: none;
-            }
-
-            .spinner { animation: spin 1.5s linear infinite; }
-            @keyframes spin { 100% { transform: rotate(360deg); } }
-
-            .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 0.5) infinite; }
-            @keyframes pulse { 50% { opacity: 0.5; } }
-
-            /* --- RESPONSIVE BUTTON SIZES --- */
-            .btn-base { @apply transition-all flex items-center justify-center gap-2 font-semibold; }
-            .btn-md { @apply btn-base px-3 py-2 xs:px-4 xs:py-2.5 md:px-5 md:py-3 text-sm md:text-base; }
-            .btn-lg { @apply btn-base px-4 py-3 xs:px-6 xs:py-3.5 md:px-8 md:py-4 text-base md:text-lg; }
-            .btn-icon { @apply btn-base w-9 h-9 xs:w-10 xs:h-10 md:w-12 md:h-12; }
-            .btn-close { @apply btn-base w-12 h-12 xs:w-14 xs:h-14 md:w-16 md:h-16 text-lg md:text-xl; }
+        [data-theme="dark"] {
+            --bg: #1a1a1a; --card: #2a2a2a; --text: #eee; --muted: #aaa;
+            --border: #444; --row-alt: #333; --btn-blue: #2185d0; --btn-blue-h: #1678c2;
+            --btn-green: #28a745; --btn-green-h: #218838; --btn-purple: #9c27b0; --btn-purple-h: #8e24aa;
+            --btn-orange: #f39c12; --btn-orange-h: #e67e22; --btn-red: #e53935; --btn-red-h: #c62828; --shadow: rgba(0,0,0,0.35);
+            --btn-route: #26a69a; --btn-route-h: #00897b;
+            --shade1: #233240; --shade2: #403523; --shade3: #2f4023; --shade4: #40233b;
+            --shade5: #3b4023; --shade6: #234040;
+            --link-colour: #66b3ff; --link-hover: #99ccff;
+            --reminder-bg: #5a4600; --reminder-text: #ffd76e;
+            --progress-bg: #444; --progress-fill: #4caf50;
         }
+        * {box-sizing:border-box; font-family:Arial,sans-serif; margin:0; padding:0; transition:0.25s;}
+        body {background:var(--bg); color:var(--text); padding:16px; font-size:var(--base-font); max-width:var(--max-width); margin:0 auto;}
+        .app-title {text-align:center; font-size:28px; font-weight:bold; margin-bottom:16px;}
+        .top-controls {display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; gap:12px; flex-wrap:wrap;}
+        .top-btn {width:var(--top-btn-w); padding:var(--btn-padding); font-size:17px; font-weight:bold; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.2),0 5px 8px var(--shadow); transform:translateY(-2px);}
+        .top-btn:active {box-shadow:0 1px 0 rgba(0,0,0,.2); transform:translateY(2px);}
+        .reset-btn {background:linear-gradient(180deg,#e85a56,var(--btn-red)); color:#fff;}
+        .reset-btn:hover {background:linear-gradient(180deg,#f0706c,var(--btn-red-h));}
+        .theme-btn {background:linear-gradient(180deg,#666,#444); color:#fff;}
+        .import-wrap {text-align:center; margin-bottom:20px;}
+        .import-btn {display:inline-block; padding:22px 40px; font-size:22px; font-weight:bold; border-radius:12px; border:none; cursor:pointer; background:linear-gradient(180deg,#42b962,var(--btn-green)); color:#fff; box-shadow:0 8px 0 rgba(0,0,0,.22),0 10px 16px var(--shadow); transform:translateY(-3px); width:100%; max-width:420px;}
+        .import-btn:hover {background:linear-gradient(180deg,#52c974,var(--btn-green-h));}
+        .import-btn:active {box-shadow:0 2px 0 rgba(0,0,0,.22); transform:translateY(2px);}
+        #imageUpload {display:none;}
+        .postcode-section {width:100%; margin-bottom:24px;}
+        .postcode-input {width:100%; padding:14px; font-size:17px; background:var(--bg); color:var(--text); border:2px solid var(--border); border-radius:8px;}
+        .ocr-progress-bar {width:100%; height:10px; background:var(--progress-bg); border-radius:5px; overflow:hidden; margin:10px 0; display:none;}
+        .ocr-progress-fill {height:100%; width:0%; background:var(--progress-fill); transition:0.2s;}
+        .reminder-text {width:100%; margin-top:8px; padding:10px 14px; background:var(--reminder-bg); color:var(--reminder-text); font-weight:bold; text-align:center; border-radius:6px; font-size:16px;}
+        .section {background:var(--card); padding:var(--section-padding); border-radius:10px; box-shadow:0 3px 8px var(--shadow); margin-bottom:24px; width:100%; overflow-x:auto;}
+        .large-btn {width:100%; padding:20px; font-size:20px; font-weight:bold; border:none; border-radius:10px; cursor:pointer; margin-bottom:18px; box-shadow:0 6px 0 rgba(0,0,0,.22),0 8px 14px var(--shadow); transform:translateY(-3px);}
+        .large-btn:active {box-shadow:0 2px 0 rgba(0,0,0,.22); transform:translateY(2px);}
+        .btn-blue {background:linear-gradient(180deg,#348eda,var(--btn-blue)); color:#fff;}
+        .btn-blue:hover {background:linear-gradient(180deg,#48a0eb,var(--btn-blue-h));}
+        .btn-purple {background:linear-gradient(180deg,#ab47bc,var(--btn-purple)); color:#fff;}
+        .btn-purple:hover {background:linear-gradient(180deg,#ba68c8,var(--btn-purple-h));}
+        .btn-route {background:linear-gradient(180deg,var(--btn-route),var(--btn-route-h)); color:#fff;}
+        .btn-route:hover {background:linear-gradient(180deg,#4db6ac,var(--btn-route));}
+        input,textarea {width:100%; padding:14px; margin-bottom:14px; font-size:17px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:8px;}
+        table {width:100%; border-collapse:collapse; margin-top:18px; font-size:15px; table-layout:fixed;}
+        th,td {padding:10px 8px; text-align:left; border-bottom:1px solid var(--border); line-height:1.4;}
+        th {background:var(--bg); font-weight:bold; font-size:14px;}
+        .loc-col {font-size:var(--loc-font); white-space:normal;}
+        #tableBody+table th:nth-child(1){width:14%;}
+        #tableBody+table th:nth-child(2){width:58%;}
+        #tableBody+table th:nth-child(3){width:20%;}
+        #tableBody+table th:nth-child(4){width:8%; text-align:center;}
+        .route-table th:nth-child(1){width:28px; text-align:center;}
+        .route-table th:nth-child(2){width:20%;}
+        .route-table th:nth-child(3){width:49%;}
+        .route-table th:nth-child(4){width:18%;}
+        .route-table th:nth-child(5){width:8%; text-align:center;}
+        tr.completed {color:var(--muted); background:var(--row-alt); text-decoration:line-through;}
+        .group-0{background:var(--shade1);}.group-1{background:var(--shade2);}.group-2{background:var(--shade3);}.group-3{background:var(--shade4);}.group-4{background:var(--shade5);}.group-5{background:var(--shade6);}
+        a.map-link {color:var(--link-colour); text-decoration:none;}
+        a.map-link:hover {color:var(--link-hover); text-decoration:underline;}
+        input[type="checkbox"] {width:22px; height:22px; cursor:pointer;}
+        .status-text {font-size:16px; color:var(--muted); margin-top:10px; font-weight:500;}
+        @media(min-width:768px){body{padding:24px;}:root{--loc-font:14px;}th,td{padding:12px 10px;}}
+        @media(min-width:1200px){:root{--base-font:18px; --btn-padding:18px 26px; --section-padding:28px; --top-btn-w:150px; --loc-font:15px;}.app-title{font-size:32px;}.import-btn{padding:24px 48px; font-size:24px; max-width:480px;}table{font-size:17px;}th,td{padding:14px 12px;}}
     </style>
+    <!-- ✅ LOCAL OCR LIBRARY - runs in browser, no API calls -->
+    <script src="https://unpkg.com/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
-<body class="bg-space text-white min-h-screen overflow-x-hidden perspective-3d pb-[90px] md:pb-[110px]">
+<body>
+<div class="app-title">HPC Job Planner</div>
+<div class="top-controls">
+    <button class="top-btn reset-btn" onclick="softReset()">🗑️ Clear Jobs</button>
+    <button class="top-btn theme-btn" id="themeSwitch" onclick="toggleTheme()">🌙 Dark Mode</button>
+</div>
+<div class="import-wrap">
+    <label class="import-btn" for="imageUpload">📸 Import Screenshot</label>
+    <input type="file" id="imageUpload" accept="image/*" onchange="handleImageSelect(event)">
+</div>
+<div class="postcode-section">
+    <input class="postcode-input" type="text" id="startPostcode" placeholder="🏠 Start/Home Postcode">
+    <div class="ocr-progress-bar" id="ocrProgressBar"><div class="ocr-progress-fill" id="ocrProgressFill"></div></div>
+    <div class="reminder-text">⚠️ Add Start Postcode first before importing</div>
+</div>
+<div class="section">
+    <h3>📝 Paste Text</h3>
+    <textarea id="regInput" placeholder="Reg… 107xxxx… POSTCODE"></textarea>
+    <button class="large-btn btn-blue" onclick="processManual()">✅ Process Paste</button>
+</div>
+<div class="section" style="display:none;">
+    <h3>⚙️ API Settings</h3>
+    <input type="text" id="ocrApiKey" value="K89415215588957">
+</div>
+<div class="section">
+    <h3>📋 Jobs — ONLY POSTCODES</h3>
+    <table><thead><tr><th>Reg</th><th class="loc-col">Postcode</th><th>Job ID</th><th>✅</th></tr></thead><tbody id="tableBody"></tbody></table><br>
+    <button class="large-btn btn-purple" onclick="exportCSV()">💾 Export CSV</button>
+</div>
+<div class="section">
+    <h3>🛣️ Optimised Route — uses postcodes only</h3>
+    <p class="status-text" id="routeStatus">ℹ️ Zero distance = same postcode group</p>
+    <table class="route-table"><thead><tr><th>#</th><th>Reg</th><th class="loc-col">Postcode</th><th>Dist (mi)</th><th>✅</th></tr></thead><tbody id="routeTableBody"></tbody></table><br>
+    <button class="large-btn btn-route" onclick="exportOptimisedRoute()">📄 Export Route</button>
+</div>
 
-    <header class="sticky top-0 z-40 glass glass-accent border-b border-accent/20 px-4 xs:px-6 py-4 xs:py-5 mb-4 xs:mb-6 shadow-glow">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4 xs:gap-5">
-            <div class="flex items-center gap-3 xs:gap-4">
-                <div class="w-10 h-10 xs:w-12 xs:h-12 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg shadow-accent/20">
-                    <i class="fa-solid fa-code text-dark text-lg xs:text-xl font-bold"></i>
-                </div>
-                <div>
-                    <h1 class="text-[clamp(1.5rem,3vw,2.6rem)] font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-accent via-white to-secondary">DEV<span class="font-light">GALLERY</span></h1>
-                    <p class="text-[10px] xs:text-xs text-accent/70 font-mono tracking-widest">HTML • CSS • JS EXPLORER</p>
-                </div>
-            </div>
+<script>
+const fallbackAddressMap={
+"PF72NWA":"E6 6JJ","PF72ODH":"E6 6JJ","PF72ODM":"E6 6JJ","PF72RJV":"E6 6JJ",
+"PF72ODR":"E6 6JJ","PF72RJX":"E6 6JJ","PF72HNX":"E6 6JJ","PF72JZU":"E6 6JJ",
+"PK22YBO":"E6 6JJ","PL21GJJ":"E6 6JJ","PJ72ZCL":"E6 6JJ","PF72MZX":"E6 6JJ",
+"PF24MTV":"UB8 1QW","PF24MTU":"UB8 1QW","PF24MTX":"UB8 1QW","PF24MKG":"UB8 1QW"
+};
+let originalOrder=[], extractedJobs=[], routeData=[];
 
-            <div class="flex flex-wrap justify-center gap-2 xs:gap-3">
-                <label class="cursor-pointer group">
-                    <div class="btn-md glass hover:glass-accent shadow-neo hover:shadow-glow">
-                        <i class="fa-solid fa-file-import text-accent"></i>
-                        <span class="hidden xs:inline">Open Files</span>
-                    </div>
-                    <input type="file" id="htmlFilesInput" accept=".html,.htm" multiple class="hidden">
-                </label>
+function extractAll(txt){
+    txt = txt.toUpperCase().replace(/\s+/g, ' ').trim();
+    const results=[];
 
-                <label class="cursor-pointer group">
-                    <div class="btn-md glass hover:glass-accent shadow-neo hover:shadow-glow">
-                        <i class="fa-solid fa-folder-tree text-secondary"></i>
-                        <span class="hidden xs:inline">Open Folder</span>
-                    </div>
-                    <input type="file" id="htmlDirInput" accept=".html,.htm" multiple webkitdirectory directory class="hidden">
-                </label>
+    // ✅ STRICT REGISTRATION PATTERN: only matches valid UK regs
+    const regPattern = /\b[A-Z]{2}\d{2}[A-Z]{3}\b/g;
+    // ✅ STRICT POSTCODE PATTERN: only matches valid UK postcodes
+    const pcPattern = /\b[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}\b/g;
+    const jobIdPattern = /\b107\d{4}\b/g;
 
-                <button id="clearAllBtn" class="btn-md glass hover:bg-danger/20 shadow-neo hover:shadow-glow text-danger hover:text-white">
-                    <i class="fa-solid fa-trash-alt"></i>
-                    <span class="hidden xs:inline">Clear All</span>
-                </button>
-            </div>
-        </div>
-    </header>
+    const regs = txt.match(regPattern) || [];
+    const jobIds = txt.match(jobIdPattern) || [];
+    const pcs = txt.match(pcPattern) || [];
 
-    <main class="max-w-7xl mx-auto px-4">
-        <div id="galleryContainer" class="h-[70vh] xs:h-[75vh] overflow-y-auto scrollbar-sleek pr-2 xs:pr-4 preserve-3d">
-            <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 xs:gap-6 md:gap-8"></div>
-        </div>
-    </main>
+    // ✅ Ensure no mixing: regs only go to Reg column, postcodes only to Postcode column
+    for(let i=0; i<regs.length; i++){
+        const reg = regs[i];
+        const jobId = jobIds[i] || "";
+        const pc = (pcs[i] || fallbackAddressMap[reg] || "").replace(/\s+/g,' ').trim();
+        results.push({reg, jobId, address: pc, postcode: pc});
+    }
 
-    <!-- FULLSCREEN MODAL -->
-    <div id="htmlModal" class="fixed inset-0 z-[999] bg-dark/98 hidden flex-col overflow-hidden">
-        
-        <!-- TOP RIGHT BUTTONS - ALWAYS VISIBLE -->
-        <div class="absolute top-4 right-4 z-[101] flex items-center gap-2 md:gap-3">
-            <button id="downloadCurrentBtn" class="btn-icon glass hover:bg-success/20 text-success shadow-lg" title="Download File">
-                <i class="fa-solid fa-download"></i>
-            </button>
-            <button id="closeModal" class="btn-close bg-gradient-to-br from-danger to-danger/80 hover:from-danger/90 hover:to-danger/70 text-white shadow-lg hover:scale-105 active:scale-95" title="Close Viewer">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
+    extractedJobs = results;
+    return results;
+}
 
-        <!-- FILE INFO HEADER -->
-        <div class="absolute top-4 left-4 z-[101] glass glass-accent px-3 py-2 rounded-lg shadow-glow max-w-[calc(100vw-120px)]">
-            <span id="modalFileName" class="text-accent font-mono text-xs md:text-sm truncate block"></span>
-            <span id="fileSize" class="text-[10px] text-gray-300"></span>
-        </div>
+function setOCRProgress(p){const b=document.getElementById('ocrProgressBar'),f=document.getElementById('ocrProgressFill');if(p<=0){b.style.display='none';f.style.width='0%';}else{b.style.display='block';f.style.width=Math.max(0,Math.min(100,p))+'%';}}
+function setTheme(m){document.documentElement.setAttribute('data-theme',m);localStorage.setItem('themePref',m);document.getElementById('themeSwitch').textContent=m==='dark'?'☀️ Light Mode':'🌙 Dark Mode';}
+function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
+window.onload=()=>{setTheme(localStorage.getItem('themePref')||'light');const s=document.getElementById('startPostcode');s.value=localStorage.getItem('lastStartPostcode')||'';s.onchange=()=>localStorage.setItem('lastStartPostcode',s.value.trim());let d=localStorage.getItem('jobTrackerData');if(d)try{buildTable(JSON.parse(d));}catch(e){}};
+function softReset(){extractedJobs=[];routeData=[];originalOrder=[];document.getElementById('tableBody').innerHTML='';document.getElementById('routeTableBody').innerHTML='';setOCRProgress(0);document.getElementById('routeStatus').textContent='ℹ️ Zero distance = same postcode group';localStorage.removeItem('jobTrackerData');}
+function saveState(){const rows=[...document.querySelectorAll('tr[data-reg]')];localStorage.setItem('jobTrackerData',JSON.stringify(rows.map(r=>({reg:r.dataset.reg,jobId:r.dataset.jobid,address:r.dataset.address,done:r.classList.contains('completed')}))));}
+function toggleDone(r){const tr=document.querySelector(`tr[data-reg="${r}"]`);tr.classList.toggle('completed');reorderTable();saveState();}
+function reorderTable(){const tb=document.getElementById('tableBody');const rows=[...tb.querySelectorAll('tr')];const a=rows.filter(x=>!x.classList.contains('completed'));const d=rows.filter(x=>x.classList.contains('completed'));tb.innerHTML='';originalOrder.forEach(r=>{const x=a.find(y=>y.dataset.reg===r);if(x)tb.appendChild(x);});d.forEach(x=>tb.appendChild(x));}
 
-        <!-- MAIN IFRAME FULLSCREEN -->
-        <div class="flex-1 w-full h-full relative">
-            <div id="modalLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-dark/80 z-20 hidden">
-                <i class="fa-solid fa-circle-notch text-accent text-4xl md:text-5xl spinner mb-3 md:mb-4"></i>
-                <p class="text-accent font-mono text-xs md:text-sm pulse">RENDERING DOCUMENT...</p>
-            </div>
-            
-            <iframe id="fullHtmlFrame" class="w-full h-full border-none" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
+async function getPostcodeCoords(p){try{const r=await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(p.trim())}`);const j=await r.json();if(j.status===200&&j.result)return{lat:j.result.latitude,lon:j.result.longitude,postcode:j.result.postcode};}catch(e){}return null;}
+function calcDistanceKm(a,b){const R=6371,dLa=(b.lat-a.lat)*Math.PI/180,dLo=(b.lon-a.lon)*Math.PI/180,x=Math.sin(dLa/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLo/2)**2;return R*(2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));}
+function kmToMiles(k){return (k*0.621371).toFixed(2);}
+function extractPostcodeFromAddress(a){return a.match(/\b[A-Z]{1,2}\d{1,2}[A-Z]?\s*\d[A-Z]{2}\b/i)?.[0]?.toUpperCase().replace(/\s+/g,' ').trim()||null;}
+function getGoogleMapsLink(q){return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;}
 
-            <!-- ZOOM CONTROLS -->
-            <div class="absolute bottom-24 left-1/2 -translate-x-1/2 glass rounded-full px-3 xs:px-5 py-2 xs:py-3 flex items-center gap-2 xs:gap-5 shadow-glow z-10">
-                <button onclick="adjustZoom(-0.5)" class="text-white/70 hover:text-accent text-base md:text-lg"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                <input type="range" id="zoomRange" min="1" max="10" step="0.5" value="1" class="w-24 xs:w-36 h-1.5 xs:h-2 rounded-lg appearance-none bg-dark/60 accent-accent">
-                <button onclick="adjustZoom(0.5)" class="text-white/70 hover:text-accent text-base md:text-lg"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                <span id="zoomLabel" class="text-accent font-mono text-[10px] xs:text-xs w-8 xs:w-10 text-center">1.0x</span>
-            </div>
-        </div>
+async function planOptimisedRoute(){
+    const startPc=document.getElementById('startPostcode').value.trim();
+    if(!startPc)return document.getElementById('routeStatus').textContent="⚠️ No start postcode";
+    const st=document.getElementById('routeStatus'),tb=document.getElementById('routeTableBody');
+    if(!extractedJobs.length)return st.textContent="⚠️ No jobs extracted";
+    st.textContent="🔄 Calculating…";tb.innerHTML='';
+    const start=await getPostcodeCoords(startPc);if(!start)return st.textContent="❌ Invalid start postcode";
 
-        <!-- BOTTOM FOOTER NAVIGATION - FIXED AT BOTTOM WITH MARGIN -->
-        <div class="absolute bottom-0 left-0 right-0 z-[101] glass-accent border-t border-accent/30 py-4 px-6 md:py-5 md:px-8 shadow-glow mx-4 mb-4 rounded-xl">
-            <div class="flex items-center justify-between max-w-5xl mx-auto">
-                <button id="prevFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
-                    <i class="fa-solid fa-chevron-left"></i>
-                    <span class="hidden xs:inline">Previous</span>
-                </button>
+    const jobs=[];
+    for(const j of extractedJobs){
+        const pc=extractPostcodeFromAddress(j.address);
+        const coords=pc?await getPostcodeCoords(pc):null;
+        jobs.push({...j,coords:coords||start,postcode:pc||startPc});
+    }
+    const opt=[], dists=[]; let curr=start, rem=[...jobs];
+    while(rem.length>0){
+        rem.sort((a,b)=>calcDistanceKm(curr,a.coords)-calcDistanceKm(curr,b.coords));
+        const n=rem.shift(); const d=calcDistanceKm(curr,n.coords); dists.push(kmToMiles(d)); opt.push(n); curr=n.coords;
+    }
+    for(let i=1;i<opt.length;i++)if(opt[i].postcode===opt[i-1].postcode)dists[i]="0.00";
+    routeData=opt.map((j,i)=>({stop:i+1,reg:j.reg,postcode:j.postcode,distanceMi:dists[i],jobId:j.jobId}));
+    renderOptimisedRoute(routeData); st.textContent="✅ Route ready";
+}
+function renderOptimisedRoute(l){const tb=document.getElementById('routeTableBody');tb.innerHTML='';let g=0;const cls=["group-0","group-1","group-2","group-3","group-4","group-5"];l.forEach((it,i)=>{if(i===0||it.distanceMi!=="0.00")g=(g+1)%cls.length;const tr=document.createElement('tr');tr.dataset.reg=it.reg;tr.className=cls[g];tr.innerHTML=`<td>${it.stop}</td><td>${it.reg}</td><td class="loc-col"><a href="${getGoogleMapsLink(it.postcode)}" target="_blank" class="map-link">${it.postcode}</a></td><td>${it.distanceMi}</td><td><input type="checkbox" onchange="toggleRouteDone('${it.reg}')"></td>`;tb.appendChild(tr);});}
+function toggleRouteDone(r){const tb=document.getElementById('routeTableBody'),rows=[...tb.querySelectorAll('tr')],row=rows.find(x=>x.dataset.reg===r);if(!row)return;row.classList.toggle('completed');const a=rows.filter(x=>!x.classList.contains('completed')),d=rows.filter(x=>x.classList.contains('completed'));tb.innerHTML='';window.routeOriginalOrder.forEach(id=>{const x=a.find(y=>y.dataset.reg===id);if(x)tb.appendChild(x);});d.forEach(x=>tb.appendChild(x));}
+function exportOptimisedRoute(){if(!routeData.length)return alert("⚠️ Plan route first");let t="OPTIMISED ROUTE – POSTCODES ONLY\n==================================\n\n";routeData.forEach(it=>{t+=`Stop ${it.stop} | Dist: ${it.distanceMi}mi\n  Reg: ${it.reg} | PC: ${it.postcode}\n\n`;});const b=new Blob([t],{type:"text/plain"});const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='route-postcodes.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function buildTable(l){const tb=document.getElementById('tableBody');tb.innerHTML='';if(!l.length){tb.innerHTML='<tr><td colspan="4">❌ No data found — check screenshot or paste text</td></tr>';return;}originalOrder=l.map(i=>i.reg);l.forEach(i=>{const tr=document.createElement('tr');tr.dataset.reg=i.reg;tr.dataset.jobid=i.jobId;tr.dataset.address=i.address;tr.innerHTML=`<td>${i.reg}</td><td class="loc-col">${i.address}</td><td>${i.jobId||"—"}</td><td><input type="checkbox" onchange="toggleDone('${i.reg}')"></td>`;tb.appendChild(tr);});saveState();}
+function processManual(){buildTable(extractAll(document.getElementById('regInput').value));}
 
-                <div class="flex flex-col items-center gap-1 px-2">
-                    <div class="h-1.5 w-32 md:w-48 bg-dark/60 rounded-full overflow-hidden shadow-inner">
-                        <div id="progressBar" class="h-full bg-gradient-to-r from-accent to-secondary w-0 transition-all duration-300"></div>
-                    </div>
-                    <span id="fileCounter" class="text-accent font-bold font-mono text-xs md:text-sm">0 / 0</span>
-                </div>
-
-                <button id="nextFileBtn" class="btn-lg glass hover:bg-accent/20 hover:shadow-glow rounded-lg">
-                    <span class="hidden xs:inline">Next</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let htmlFiles = [];
-        let currentIndex = 0;
-        let currentZoom = 1;
-
-        // Elements
-        const galleryGrid = document.getElementById('galleryGrid');
-        const htmlFilesInput = document.getElementById('htmlFilesInput');
-        const htmlDirInput = document.getElementById('htmlDirInput');
-        const clearAllBtn = document.getElementById('clearAllBtn');
-        const htmlModal = document.getElementById('htmlModal');
-        const fullHtmlFrame = document.getElementById('fullHtmlFrame');
-        const modalLoader = document.getElementById('modalLoader');
-        const modalFileName = document.getElementById('modalFileName');
-        const fileSize = document.getElementById('fileSize');
-        const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
-        const closeModal = document.getElementById('closeModal');
-        const prevFileBtn = document.getElementById('prevFileBtn');
-        const nextFileBtn = document.getElementById('nextFileBtn');
-        const fileCounter = document.getElementById('fileCounter');
-        const progressBar = document.getElementById('progressBar');
-        const zoomRange = document.getElementById('zoomRange');
-        const zoomLabel = document.getElementById('zoomLabel');
-
-        // --- FILE HANDLING ---
-        function loadFiles(files) {
-            if (!files.length) return;
-            const validFiles = Array.from(files).filter(file => /\.(html|htm)$/i.test(file.name));
-            htmlFiles = validFiles.map(file => ({
-                name: file.name,
-                url: URL.createObjectURL(file),
-                size: (file.size / 1024).toFixed(1) + ' KB',
-                date: file.lastModified
-            })).sort((a, b) => b.date - a.date);
-
-            renderGallery();
-        }
-
-        // --- RENDER GALLERY ---
-        function renderGallery() {
-            galleryGrid.innerHTML = '';
-
-            if (htmlFiles.length === 0) {
-                for (let i = 0; i < 12; i++) {
-                    const empty = document.createElement('div');
-                    empty.className = 'glass rounded-2xl aspect-square flex items-center justify-center border border-accent/5 float-3d';
-                    empty.innerHTML = '<i class="fa-solid fa-file-code text-accent/20 text-4xl md:text-5xl"></i>';
-                    galleryGrid.appendChild(empty);
+// ✅ REPLACED: Local OCR instead of slow API
+async function handleImageSelect(e){
+    const f=e.target.files[0];
+    if(!f) return;
+    setOCRProgress(5);
+    try {
+        // Local OCR engine - runs in your browser
+        const result = await Tesseract.recognize(f, 'eng', {
+            psm: 11, // Optimised for lists/tables
+            oem: 3,
+            logger: (m) => {
+                if (m.status === 'recognizing text') {
+                    setOCRProgress(Math.round(m.progress * 100));
                 }
-                return;
             }
-
-            // Render all uploaded files
-            htmlFiles.forEach((file, index) => {
-                const card = document.createElement('div');
-                card.className = 'glass rounded-2xl aspect-square overflow-hidden relative border border-accent/10 float-3d cursor-pointer shadow-neo hover:shadow-neo-hover';
-
-                card.innerHTML = `
-                    <!-- Loading Spinner -->
-                    <div class="absolute inset-0 flex items-center justify-center bg-dark/80 z-10 thumbnail-loader">
-                        <i class="fa-solid fa-circle-notch text-accent text-2xl md:text-3xl spinner"></i>
-                    </div>
-                    
-                    <!-- Live HTML Preview -->
-                    <div class="w-full h-full overflow-hidden">
-                        <iframe src="${file.url}" class="iframe-thumb" sandbox="allow-same-origin allow-scripts" 
-                            onload="this.parentElement.previousElementSibling.remove()">
-                        </iframe>
-                    </div>
-
-                    <!-- File Info Bar -->
-                    <div class="absolute bottom-0 left-0 right-0 glass glass-accent backdrop-blur-md p-2 md:p-3 border-t border-accent/10">
-                        <p class="text-accent text-[10px] md:text-xs font-mono font-semibold truncate">${file.name}</p>
-                        <p class="text-white/50 text-[8px] md:text-[10px] mt-0.5 md:mt-1">${file.size}</p>
-                    </div>
-                `;
-
-                // Open FULLSCREEN MODAL on click
-                card.onclick = () => {
-                    currentIndex = index;
-                    openModal();
-                };
-
-                galleryGrid.appendChild(card);
-            });
-        }
-
-        // --- OPEN FULLSCREEN MODAL ---
-        function openModal() {
-            const file = htmlFiles[currentIndex];
-            
-            // Update header info
-            modalFileName.textContent = file.name;
-            fileSize.textContent = file.size;
-            fileCounter.textContent = `${currentIndex + 1} / ${htmlFiles.length}`;
-            progressBar.style.width = `${((currentIndex + 1) / htmlFiles.length) * 100}%`;
-
-            // Reset zoom level
-            currentZoom = 1;
-            zoomRange.value = 1;
-            updateZoom();
-
-            // Show loader while loading
-            modalLoader.classList.remove('hidden');
-            
-            // Load file into iframe
-            fullHtmlFrame.onload = () => modalLoader.classList.add('hidden');
-            fullHtmlFrame.src = file.url;
-
-            // Show fullscreen modal & lock background scroll
-            htmlModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // --- ZOOM SYSTEM ---
-        function updateZoom() {
-            zoomLabel.textContent = `${currentZoom.toFixed(1)}x`;
-            fullHtmlFrame.style.transform = `scale(${currentZoom})`;
-            fullHtmlFrame.style.transformOrigin = 'top left';
-        }
-
-        function adjustZoom(change) {
-            currentZoom = Math.min(Math.max(currentZoom + change, 1), 10);
-            zoomRange.value = currentZoom;
-            updateZoom();
-        }
-
-        zoomRange.addEventListener('input', (e) => {
-            currentZoom = parseFloat(e.target.value);
-            updateZoom();
         });
-
-        // --- NAVIGATION FUNCTIONS ---
-        function goToPrev() {
-            if (htmlFiles.length === 0) return;
-            currentIndex = (currentIndex - 1 + htmlFiles.length) % htmlFiles.length;
-            openModal();
+        setOCRProgress(100);
+        const rawText = result.data.text;
+        buildTable(extractAll(rawText));
+        if(document.getElementById('startPostcode').value.trim()){
+            setTimeout(planOptimisedRoute, 200);
         }
+    } catch (err) {
+        setOCRProgress(0);
+        alert("❌ OCR failed — try clearer screenshot");
+        console.error(err);
+    }
+    setTimeout(()=>setOCRProgress(0), 800);
+}
 
-        function goToNext() {
-            if (htmlFiles.length === 0) return;
-            currentIndex = (currentIndex + 1) % htmlFiles.length;
-            openModal();
-        }
-
-        // Attach navigation events
-        prevFileBtn.onclick = goToPrev;
-        nextFileBtn.onclick = goToNext;
-
-        // --- DOWNLOAD CURRENT FILE ---
-        downloadCurrentBtn.onclick = () => {
-            const file = htmlFiles[currentIndex];
-            const a = document.createElement('a');
-            a.href = file.url;
-            a.download = file.name;
-            a.click();
-        };
-
-        // --- CLOSE MODAL ---
-        closeModal.onclick = () => {
-            htmlModal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            // Clear iframe to free memory
-            fullHtmlFrame.src = '';
-        };
-
-        // --- CLEAR ALL FILES ---
-        clearAllBtn.onclick = () => {
-            // Free memory
-            htmlFiles.forEach(f => URL.revokeObjectURL(f.url));
-            htmlFiles = [];
-            // Reset inputs
-            htmlFilesInput.value = '';
-            htmlDirInput.value = '';
-            // Reset view
-            renderGallery();
-        };
-
-        // --- FILE INPUT HANDLERS ---
-        htmlFilesInput.onchange = e => loadFiles(e.target.files);
-        htmlDirInput.onchange = e => loadFiles(e.target.files);
-
-        // --- INITIALIZE ---
-        renderGallery();
-    </script>
-
+function exportCSV(){const rows=[...document.querySelectorAll('tr[data-reg]')].map(r=>`${r.dataset.reg},${r.dataset.address},${r.dataset.jobid},${r.classList.contains('completed')?'DONE':'ACTIVE'}`);const csv=`Reg,Postcode,JobID,Status\n${rows.join('\n')}`;const b=new Blob([csv],{type:"text/csv"});const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='jobs-pc.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+</script>
 </body>
 </html>
